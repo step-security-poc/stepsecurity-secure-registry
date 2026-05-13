@@ -1,0 +1,35 @@
+name: npm install with StepSecurity registry
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Configure StepSecurity npm registry
+        env:
+          STEPSECURITY_API_KEY: ${{ secrets.STEPSECURITY_API_KEY }}
+        run: |
+          npm config set registry https://registry.stepsecurity.io/javascript
+          npm config set //registry.stepsecurity.io/javascript/:_authToken "$STEPSECURITY_API_KEY"
+
+      - name: Install single package against StepSecurity registry
+        run: |
+          mkdir -p /tmp/regtest && cd /tmp/regtest
+          npm init -y > /dev/null
+          npm install @actions/core
+          npm ls --all
