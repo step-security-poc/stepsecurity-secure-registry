@@ -37,6 +37,8 @@ This is a demo repo. To try it out, you need your own copy where you can add sec
 
 ### 4. Run the workflows
 
+> **Note:** In order to test the comproimsed package block - ensure that Secure Registry **Compromised Package** check is enabled in the StepSecurity dashboard under *Secure Registry -> Policy*
+
 In **your fork**, go to the **Actions** tab and choose which demo to run:
 
 - **npm install with StepSecurity registry** — basic registry integration demo (also runs automatically on pushes/PRs to `main`)
