@@ -33,12 +33,11 @@ jobs:
 
       # ❌ This version (1.5.0) is flagged as compromised on StepSecurity compromised package list as a dummy compromised npm package — Secure Registry prevents this version from being installed
       - name: "Install compromised version (1.5.0) — expected to fail"
-        continue-on-error: true
         run: |
           mkdir -p /tmp/compromised-test && cd /tmp/compromised-test
           npm init -y > /dev/null
           npm install @harden-runner-canary/basic-npm-package@1.5.0
-          echo "❌ This line should not be reached — the install should have been blocked"
+          
 
       - name: Summary
         run: |
