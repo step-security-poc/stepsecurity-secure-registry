@@ -1,0 +1,55 @@
+name: "POC demoCompromised package block via Secure Registry"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compromised-package-demo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Configure StepSecurity npm registry
+        env:
+          STEPSECURITY_API_KEY: ${{ secrets.STEPSECURITY_API_KEY }}
+        run: |
+          npm config set registry https://registry.stepsecurity.io/javascript
+          npm config set //registry.stepsecurity.io/javascript/:_authToken "$STEPSECURITY_API_KEY"
+
+      # This version (1.4.0) is CLEAN - Secure Registry allows it through to install 
+      - name: "Install clean version (1.4.0)"
+        run: |
+          mkdir -p /tmp/clean-test && cd /tmp/clean-test
+          npm init -y > /dev/null
+          npm install @harden-runner-canary/basic-npm-package@1.4.0
+          echo "✅ Clean version installed successfully"
+
+      # ❌ This version (1.5.0) is flagged as compromised on StepSecurity compromised package list as a dummy compromised npm package — Secure Registry prevents this version from being installed
+      - name: "Install compromised version (1.5.0) — expected to fail"
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/compromised-test && cd /tmp/compromised-test
+          npm init -y > /dev/null
+          npm install @harden-runner-canary/basic-npm-package@1.5.0
+          echo "❌ This line should not be reached — the install should have been blocked"
+
+      - name: Summary
+        run: |
+          echo ""
+          echo "============================================"
+          echo " Secure Registry — Compromised Package Demo"
+          echo "============================================"
+          echo ""
+          echo "✅ @harden-runner-canary/basic-npm-package@1.4.0 — ALLOWED (clean version)"
+          echo "❌ @harden-runner-canary/basic-npm-package@1.5.0 — BLOCKED (compromised)"
+          echo ""
+          echo "View the full policy evaluation in your StepSecurity dashboard:"
+          echo "https://app.stepsecurity.io"
+          echo ""
